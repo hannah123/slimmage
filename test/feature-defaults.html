@@ -11,9 +11,18 @@
       img.fixedsize_315 {max-width:315px;}
     </style>
 
+    <script type="text/javascript">
+      window.slimmage = {
+        enforceCss = false,
+        readyCallback = function(){
+          document.getElementById("info").setAttribute("data-json", "[" + (window.devicePixelRatio || 1) + "," + (!!window.slimmage.webp) + "]");
+          console.log("hi");
+        }};
+    </script>
     <script type="text/javascript" src="../slimmage.min.js"></script>
   </head>
   <body>
+      <div id="info">&nbsp;</div>
     <div  id="container">
       <h2> Slimmage feature tests (defaults) </h2>
       <noscript data-slimmage data-img-class="halfsize"  data-img-id="halfsize" data-img-src="http://z.zr.io/ri/1s.jpg?width=150&amp;format=jpg&amp;quality=90">

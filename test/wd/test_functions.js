@@ -139,9 +139,19 @@ test.elements = function(){
 
     // Calculate halfsize and halfsize_src
     before(function(done) {
+
       this.browser
-        .safeExecute('[window.devicePixelRatio || 1, window.slimmage && window.slimmage.webp]')
-        .then(function(val){
+      .waitFor(util.asserter(function(t) {
+          return t.elementById('info').getAttribute("data-json")
+            .then(function(actual) {
+              return actual.should.eventually.not.be.undefined;
+            });
+        }), e.explicit_wait)
+        .elementById('info')
+        .getAttribute("data-json")
+        .then(function(json){
+          val = JSON.parse(json);
+          if (val === null) { console.log("failed to parse " + json);}
           dpr = val[0];
           if (dpr > 1.49){
             quality = val[1] ? 65 : 80;
