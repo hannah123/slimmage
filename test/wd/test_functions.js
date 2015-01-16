@@ -3,6 +3,8 @@
 var e = require('./expected.js');
 var util	= require('./util.js');
 var test = module.exports = {};
+var chai = require('chai');
+var should = chai.should();
 
 //--------------------------------------------------------------------------
 //---       The following are only functions, and unless called          ---
@@ -40,9 +42,9 @@ test.mobile = function() {
 test.desktopPage = function(page, is_ie) {
   test.changeWindowSize.call(this, e.desktop.medium.size );
   test.loadPage.call(this, page );
-  test.elements.call(this, e.desktop.medium,is_ie);
+  test.elements.call(this,is_ie);
   test.changeWindowSize.call(this, e.desktop.large.size );
-  test.elements.call(this, e.desktop.large,is_ie);
+  test.elements.call(this,is_ie);
 };
 
 test.changeWindowSize = function(size) {
@@ -173,6 +175,13 @@ test.elements = function(is_ie){
           halfsize_src = e.calc_nearest_slim_step(halfsize * dpr);
         })
         .nodeify(done);
+    });
+
+    describe('async script',function() {
+      it('should have executed and set a flag',function(done) {
+        should.exist(async_script_ran);
+        done();
+      });
     });
 
     describe('fixedwidth_155', function() {
