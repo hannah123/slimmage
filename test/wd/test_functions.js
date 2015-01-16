@@ -157,23 +157,8 @@ test.elements = function(is_ie){
         quality = 90;
         format='&format=jpg&quality=90';
       } else {
-
         chain = chain
-          // Browser code...
-          .safeExecuteAsync(
-            'var cb = arguments[arguments.length - 1];' +
-            'var result = [true];' +
-            'result.push(window.devicePixelRatio);' +
-            'if (window.slimmage) {' +
-              'window.slimmage.readyCallback = function() {' +
-                'result.push(window.slimmage.webp);' +
-                'cb(result);' +
-              '};' +
-            '} else {' +
-              'cb(result);' +
-            '}'
-          )
-          // Node code...
+          .safeExecute( '[true, window.devicePixelRatio, window.slimmage && window.slimmage.webp]')
           .then(function(val){
             async_script_ran = val[0]; // val[0] is a flag, showing us that the above script ran
             dpr = val[1];
@@ -186,6 +171,7 @@ test.elements = function(is_ie){
           });
 
       }
+
       chain.elementById('container')
         .getSize()
         .then(function(size) {
@@ -195,12 +181,14 @@ test.elements = function(is_ie){
         .nodeify(done);
     });
 
-    describe('async script',function() {
-      it('should have executed and set a flag',function(done) {
-        should.exist(async_script_ran);
-        done();
+    if (!is_ie) {
+      describe('async script',function() {
+        it('should have executed and set a flag',function(done) {
+          should.exist(async_script_ran);
+          done();
+        });
       });
-    });
+    }
 
     describe('fixedwidth_155', function() {
       it('src url should ratchet up to nearest step', function(done) {
