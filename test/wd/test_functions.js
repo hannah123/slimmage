@@ -144,30 +144,48 @@ test.elements = function(is_ie){
   var halfsize_src;
   var format;
   var quality;
+  var async_script_ran;
 
   describe('elements',function() {
 
     // Calculate halfsize and halfsize_src
     before(function(done) {
       var chain = this.browser;
+
       if (is_ie){
         dpr = 1;
         quality = 90;
-        format="&format=jpg&quality=90";
-      }else{
-        chain = chain
-          .safeExecute('[window.devicePixelRatio || 1, window.slimmage && window.slimmage.webp]')
-          .then(function(val){
-            dpr = val[0];
-            if (dpr > 1.49){
-              quality = val[1] ? 65 : 80;
-            }else{
-              quality = val[1] ? 78 : 90;
-            }
-            format = val[1] ? "&format=webp&quality=" + quality : "&format=jpg&quality=" + quality;
-          });
-      }
+        format='&format=jpg&quality=90';
+      } else {
 
+        chain = chain
+          // Browser code...
+          .safeExecuteAsync(
+            'var cb = arguments[arguments.length - 1];' +
+            'var result = [true];' +
+            'result.push(window.devicePixelRatio);' +
+            'if (window.slimmage) {' +
+              'window.slimmage.readyCallback = function() {' +
+                'result.push(window.slimmage.webp);' +
+                'cb(result);' +
+              '};' +
+            '} else {' +
+              'cb(result);' +
+            '}'
+          )
+          // Node code...
+          .then(function(val){
+            async_script_ran = val[0]; // val[0] is a flag, showing us that the above script ran
+            dpr = val[1];
+            if (dpr > 1.49){
+              quality = val[2] ? 65 : 80;
+            } else {
+              quality = val[2] ? 78 : 90;
+            }
+            format = val[2] ? '&format=webp&quality=' + quality : '&format=jpg&quality=' + quality;
+          });
+
+      }
       chain.elementById('container')
         .getSize()
         .then(function(size) {
